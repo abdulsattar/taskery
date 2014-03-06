@@ -1,0 +1,57 @@
+<html ng-app="tasks">
+  <head>
+    <title>Taskery</title>
+    <script src="https://cdn.firebase.com/js/client/1.0.6/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/0.7.0/angularfire.min.js"></script>
+    <script>
+      var myApp = angular.module("tasks", ["firebase"]);
+
+      function TasksController($scope, $firebase) {
+        var taskRef = new Firebase("https://taskery.firebaseio.com/tasks");
+        // Automatically syncs everywhere in realtime
+        $scope.tasks = $firebase(taskRef);
+
+        $scope.addTask = function(e) {
+          if(e.keyCode === 13) {
+            $scope.tasks.$add({completed: false, title: $scope.newTask});
+          }
+        }
+      }
+    </script>
+    <style>
+      ul {
+        list-style: none;
+        padding: 0px;
+      }
+
+      li input[type='text'] {
+        border: none;
+        width: 96%;
+      }
+      li input[type='text']:focus {
+        outline: none;
+      }
+      li {
+        border-bottom: 2px solid #eee;
+      }
+      .completed input[type='text'] {
+        color: #ddd;
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body ng-controller="TasksController">
+    <h3>Tasks</h3>
+    <ul>
+      <li ng-repeat="task in tasks" ng-class="{completed:task.completed}">
+        <label>
+          <input type="checkbox" ng-model="task.completed" ng-change="tasks.$save(task.key)">
+          <input type="text" ng-model="task.title"
+          ng-change="tasks.$save(task.key)" ng-keypress="addTask($event)"
+          autofocus>
+        </label>
+      </li>
+    </ul>
+  </body>
+</html>
