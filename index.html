@@ -3,14 +3,17 @@
     <title>Taskery</title>
     <script src="https://cdn.firebase.com/js/client/1.0.6/firebase.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
-    <script src="https://cdn.firebase.com/libs/angularfire/0.7.0/angularfire.min.js"></script>
+    <script src='https://cdn.firebase.com/js/simple-login/1.3.0/firebase-simple-login.js'></script>
+ <script src='https://login.persona.org/include.js'></script>   <script src="https://cdn.firebase.com/libs/angularfire/0.7.0/angularfire.min.js"></script>
     <script>
       var myApp = angular.module("tasks", ["firebase"]);
 
-      function TasksController($scope, $firebase) {
+      function TasksController($scope, $firebase, $firebaseSimpleLogin) {
         var taskRef = new Firebase("https://taskery.firebaseio.com/tasks");
-        // Automatically syncs everywhere in realtime
         $scope.tasks = $firebase(taskRef);
+
+        var taskerRef = new Firebase("https://taskery.firebaseio.com");
+        $scope.loginObj = $firebaseSimpleLogin(taskerRef);
 
         $scope.addTask = function(e) {
           if(e.keyCode === 13) {
@@ -19,6 +22,7 @@
         }
       }
     </script>
+    <link href="persona-buttons.css" rel="stylesheet">
     <style>
       ul {
         list-style: none;
@@ -42,7 +46,14 @@
     </style>
   </head>
   <body ng-controller="TasksController">
-    <h3>Tasks</h3>
+    <h3>Tasks
+      <a class="persona-button" ng-hide="loginObj.user"
+        ng-click="loginObj.$login('persona')"><span>Login</span></a>
+      <span ng-show="loginObj.user">
+        {{loginObj.user.name}} | <a href="#" class="persona-button orange"
+          ng-click="loginObj.$logout()"><span>Logout</span></a>
+      </span>
+    </h3>
     <ul>
       <li ng-repeat="task in tasks" ng-class="{completed:task.completed}">
         <label>
